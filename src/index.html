@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>Mini App</title>
+
+    <style>
+
+      body {
+        background: #ffffff;
+      }
+
+      .mdc-typography--headline4 {
+        margin: 0.5em;
+      }
+
+      .mdc-typography--headline4 .tip {
+        float: right;
+      }
+
+      .menu {
+        margin: 1em auto;
+      }
+
+      .menu .item {
+        display: inline-block;
+        width: 40%;
+        padding: 0.4em;
+        margin: 0.4em;
+        border: 1px solid white;
+        cursor: pointer;
+      }
+
+      .item > img {
+        display: block;
+        width: 100%;
+        min-width: 131px;
+        min-height: 150px;
+      }
+
+      .item > p {
+        text-align: center;
+        min-height: 32px;
+      }
+
+      .actions {
+        text-align: center;
+        margin-top: 1em;
+      }
+
+      .actions span {
+        cursor: pointer;
+        transform: scale(1.5);
+      }
+
+      .rated {
+        color: orange;
+      }
+
+      .item[data-selected] {
+        border-color: #333;
+      }
+
+    </style>
+  </head>
+  <body>
+    <heading class="mdc-typography--headline4">TiPY
+      <span class="tip"></span>
+    </heading>
+
+    <div class="menu">
+      <div class="item">
+        <img src="https://via.placeholder.com/150" alt="">
+        <p class="mdc-typography--headline6"></p>
+      </div>
+      <div class="item">
+        <img src="https://via.placeholder.com/150" alt="">
+        <p class="mdc-typography--headline6"></p>
+      </div>
+      <div class="item">
+        <img src="https://via.placeholder.com/150" alt="">
+        <p class="mdc-typography--headline6"></p>
+      </div>
+      <div class="item">
+        <img src="https://via.placeholder.com/150" alt="">
+        <p class="mdc-typography--headline6"></p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <span class="material-icons" data-rate="1">star</span>
+      <span class="material-icons" data-rate="2">star</span>
+      <span class="material-icons" data-rate="3">star</span>
+      <span class="material-icons" data-rate="4">star</span>
+      <span class="material-icons" data-rate="5">star</span>
+    </div>
+
+    <script>
+      let menu = [];
+      let items = document.querySelectorAll('.item');
+      let images = document.querySelectorAll('.item img');
+      let paragraphs = document.querySelectorAll('.item p');
+      let stars = document.querySelectorAll('.actions span');
+
+      const getRating = (star) => {
+        let dataRate = parseInt(star.getAttribute('data-rate'));
+        console.log(dataRate);
+        return dataRate;
+      };
+
+      const formatMoney = (figure) => {
+        let currency = figure.toLocaleString("us-en", {style: "currency", currency: "USD"});
+        return currency;
+      }
+
+      const tipWith = (tip) => {
+        let myTip = document.querySelector('.tip');
+        myTip.textcontent = formatMoney(tip);
+      };
+
+      const calculateTip = () => {
+        const selectedMeal = document.querySelector('.item[data-selected]');
+        const id = selectedMeal.getAttribute('data-meal-id');
+        //console.log(id);
+        if (!selectedMeal || id) {
+          return;
+        }
+        const findMeal = (id) => {
+          return
+        }
+        const meal = menu.find((element) => {
+          return element.id === id;
+        });
+
+        console.log(meal);
+      };
+
+      const mealChoosen = ({target}) => {
+        let targetParent = target.parentNode;
+
+        items.forEach((item) => {
+          if (item.hasAttribute('data-selected')) {
+          	item.removeAttribute('data-selected');
+          }
+        });
+
+        targetParent.setAttribute('data-selected', '');
+        calculateTip();
+      };
+
+      const rateMeal = ({target}) => {
+        let rate = document.querySelector('.item[data-selected]');
+        if (!rate) {
+          return;
+        }
+
+        const rating = getRating(target);
+
+        stars.forEach((element, index) => {
+
+          element.classList.remove('rated');
+
+          if (index < rating) {
+            element.classList.add('rated');
+          }
+        });
+
+        calculateTip();
+      };
+
+      const uiCanInteract = () => {
+        images.forEach((element) => {
+          element.addEventListener('click', mealChoosen);
+        });
+
+        stars.forEach((element) => {
+          element.addEventListener('click', rateMeal)
+        });
+
+        /*items.forEach((element) => {
+          element.removeAttribute('data-selected');
+        });*/
+      };
+
+      const displayMenu = ({results}) => {
+        const [data] = results;
+        menu = Object.values(data);
+
+        menu.forEach((element, index) => {
+          images[index].src = element.sample;
+          paragraphs[index].textContent = formatMoney(element.price);
+          items[index].setAttribute('data-meal-id', element.id);
+
+          //uiCanInteract();
+        });
+        uiCanInteract();
+      };
+
+      const fetchAndDisplayMenu = () => {
+        const api = "https://randomapi.com/api/d12c99b82acfefae33f7ce9239b57811";
+        fetch(api)
+        .then(response => {
+          return response.json();
+        })
+        .then((data) => {
+          displayMenu(data);
+        });
+      };
+
+      const startApp = () => {
+        fetchAndDisplayMenu();
+      };
+
+      startApp();
+    </script>
+  </body>
+</html>
